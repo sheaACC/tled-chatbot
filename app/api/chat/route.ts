@@ -50,9 +50,9 @@ Context: ${context}`
         ? new HumanMessage(message.content)
         : new AIMessage(message.content)
     ),
-  ]
+  ] as const
 
-  const stream = await model.stream(augmentedMessages)
+  const stream = await model.stream(augmentedMessages as any)
 
   return LangChainAdapter.toDataStreamResponse(stream)
 }
