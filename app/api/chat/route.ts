@@ -29,7 +29,7 @@ export async function POST(req: Request) {
   const vectorStore = await QdrantVectorStore.fromExistingCollection(
     embeddings,
     {
-      url: process.env.QDRANT_URL_PROD,
+      url: process.env.QDRANT_URL,
       collectionName: 'tled-website',
       apiKey: process.env.QDRANT_KEY,
     }
