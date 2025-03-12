@@ -17,7 +17,8 @@
     "langchain": "0.1.36",
     "next": "latest",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-markdown": "^10.1.0"
   },
   "devDependencies": {
     "@types/node": "^17.0.12",

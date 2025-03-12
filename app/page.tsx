@@ -1,5 +1,5 @@
 'use client'
-
+import Markdown from 'react-markdown'
 import { useChat } from '@ai-sdk/react'
 
 export default function Chat() {
@@ -16,7 +16,16 @@ export default function Chat() {
               <div className="font-bold">
                 {m.role === 'user' ? 'User: ' : 'AI: '}
               </div>
-              <div dangerouslySetInnerHTML={{ __html: m.content }} />
+              <Markdown
+                components={{
+                  a: ({ node, ...props }) => (
+                    <a target="_blank" rel="noopener noreferrer" {...props} />
+                  ),
+                }}
+              >
+                {m.content}
+              </Markdown>
+              {/* <div dangerouslySetInnerHTML={{ __html: m.content }} /> */}
             </div>
           ))
         : null}
