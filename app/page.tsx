@@ -1,7 +1,10 @@
 'use client'
 import Markdown from 'react-markdown'
 import { useChat } from '@ai-sdk/react'
-import { memo, useEffect } from 'react'
+import { memo, useEffect, useState } from 'react'
+
+const STORAGE_KEY = 'tled_chat_history'
+const MAX_HISTORY = 5
 
 const MessageComponent = memo(({ message }: { message: any }) => (
   <div className="whitespace-pre-wrap mb-4 [&_a]:underline">
@@ -29,7 +32,41 @@ const MessageComponent = memo(({ message }: { message: any }) => (
 MessageComponent.displayName = 'MessageComponent'
 
 export default function Chat() {
-  const { messages, input, handleInputChange, handleSubmit, status } = useChat()
+  const [initialMessages, setInitialMessages] = useState<any[]>([])
+  const [isLoaded, setIsLoaded] = useState(false)
+
+  const { messages, input, handleInputChange, handleSubmit, status } = useChat({
+    initialMessages,
+    onFinish: (message) => {
+      try {
+        // Save messages to localStorage after each interaction
+        if (typeof window !== 'undefined') {
+          const allMessages = [...messages, message]
+          console.log('Current messages:', allMessages)
+          // Keep only the last MAX_HISTORY interactions (pairs of messages)
+          const historyToSave = allMessages.slice(-MAX_HISTORY * 2)
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(historyToSave))
+        }
+      } catch (error) {
+        console.error('Error saving to localStorage:', error)
+      }
+    },
+  })
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedMessages = localStorage.getItem(STORAGE_KEY)
+      if (savedMessages) {
+        try {
+          const parsedMessages = JSON.parse(savedMessages)
+          setInitialMessages(parsedMessages)
+        } catch (e) {
+          console.error('Failed to parse saved messages', e)
+        }
+      }
+      setIsLoaded(true)
+    }
+  }, [])
 
   useEffect(() => {
     window.scrollTo({
@@ -37,6 +74,10 @@ export default function Chat() {
       behavior: 'smooth',
     })
   }, [messages, status])
+
+  if (!isLoaded) {
+    return <div>Loading chat history...</div>
+  }
 
   return (
     <>
