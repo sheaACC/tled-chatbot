@@ -40,8 +40,8 @@ export default function Chat() {
 
   return (
     <>
-      <div className="bg-rb-purple text-white py-8">
-        <div className="flex items-center gap-4 max-w-2xl mx-auto px-8 sticky top-0">
+      <div className="bg-rb-purple text-white py-8 sticky top-0 z-10">
+        <header className="flex items-center gap-4 max-w-2xl mx-auto px-8">
           <a title="ACC Home Link" href="http://www.austincc.edu">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -70,8 +70,11 @@ export default function Chat() {
             </svg>
           </a>
           <h1 className="text-4xl">TLED Chatbot</h1>
-        </div>
+        </header>
       </div>
+
+      <div className="fixed left-0 right-0 h-36 bg-gradient-to-b from-white to-transparent z-10" />
+
       <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
         {messages.length > 0
           ? messages.map((m) => <MessageComponent key={m.id} message={m} />)
