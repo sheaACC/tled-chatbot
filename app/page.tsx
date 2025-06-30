@@ -1,4 +1,5 @@
 'use client'
+import React from 'react'
 import Markdown from 'react-markdown'
 import { useChat } from '@ai-sdk/react'
 import { memo, useEffect, useState } from 'react'
@@ -45,7 +46,11 @@ export default function Chat() {
           console.log('Current messages:', allMessages)
           // Keep only the last MAX_HISTORY interactions (pairs of messages)
           const historyToSave = allMessages.slice(-MAX_HISTORY * 2)
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(historyToSave))
+          const dataToStore = {
+            messages: historyToSave,
+            timestamp: Date.now(),
+          }
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToStore))
         }
       } catch (error) {
         console.error('Error saving to localStorage:', error)
@@ -55,11 +60,18 @@ export default function Chat() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedMessages = localStorage.getItem(STORAGE_KEY)
-      if (savedMessages) {
+      const savedData = localStorage.getItem(STORAGE_KEY)
+      if (savedData) {
         try {
-          const parsedMessages = JSON.parse(savedMessages)
-          setInitialMessages(parsedMessages)
+          const parsed = JSON.parse(savedData)
+          const now = Date.now()
+          const twentyFourHours = 24 * 60 * 60 * 1000
+          if (parsed.timestamp && now - parsed.timestamp < twentyFourHours) {
+            setInitialMessages(parsed.messages)
+          } else {
+            // Data is too old, clear it
+            localStorage.removeItem(STORAGE_KEY)
+          }
         } catch (e) {
           console.error('Failed to parse saved messages', e)
         }

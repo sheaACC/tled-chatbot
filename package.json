@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@ai-sdk/react": "1.1.21",
-    "@dhaiwat10/react-link-preview": "^1.15.0",
     "@langchain/core": "^0.3.41",
     "@langchain/openai": "0.0.28",
     "@langchain/qdrant": "^0.1.1",
