@@ -38,24 +38,7 @@ export default function Chat() {
 
   const { messages, input, handleInputChange, handleSubmit, status } = useChat({
     initialMessages,
-    onFinish: (message) => {
-      try {
-        // Save messages to localStorage after each interaction
-        if (typeof window !== 'undefined') {
-          const allMessages = [...messages, message]
-          console.log('Current messages:', allMessages)
-          // Keep only the last MAX_HISTORY interactions (pairs of messages)
-          const historyToSave = allMessages.slice(-MAX_HISTORY * 2)
-          const dataToStore = {
-            messages: historyToSave,
-            timestamp: Date.now(),
-          }
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToStore))
-        }
-      } catch (error) {
-        console.error('Error saving to localStorage:', error)
-      }
-    },
+    onFinish: () => {},
   })
 
   useEffect(() => {
@@ -86,6 +69,23 @@ export default function Chat() {
       behavior: 'smooth',
     })
   }, [messages, status])
+
+  // Save messages to localStorage every time messages changes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && messages.length > 0) {
+      try {
+        // Keep only the last MAX_HISTORY interactions (pairs of messages)
+        const historyToSave = messages.slice(-MAX_HISTORY * 2)
+        const dataToStore = {
+          messages: historyToSave,
+          timestamp: Date.now(),
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToStore))
+      } catch (error) {
+        console.error('Error saving to localStorage:', error)
+      }
+    }
+  }, [messages])
 
   if (!isLoaded) {
     return <div>Loading chat history...</div>
