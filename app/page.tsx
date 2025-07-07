@@ -3,6 +3,7 @@ import React from 'react'
 import Markdown from 'react-markdown'
 import { useChat } from '@ai-sdk/react'
 import { memo, useEffect, useState } from 'react'
+import Image from 'next/image'
 
 const STORAGE_KEY = 'tled_chat_history'
 const MAX_HISTORY = 5
@@ -35,6 +36,9 @@ MessageComponent.displayName = 'MessageComponent'
 export default function Chat() {
   const [initialMessages, setInitialMessages] = useState<any[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
+  const [welcomeText, setWelcomeText] = useState('')
+  const fullWelcomeText =
+    "Hi! I'm the TLED Riverbot, ask me anything about TLED."
 
   const { messages, input, handleInputChange, handleSubmit, status } = useChat({
     initialMessages,
@@ -87,6 +91,20 @@ export default function Chat() {
     }
   }, [messages])
 
+  // Typewriter effect for welcome message
+  useEffect(() => {
+    if (messages.length === 0) {
+      setWelcomeText('')
+      let i = 0
+      const interval = setInterval(() => {
+        setWelcomeText(fullWelcomeText.slice(0, i + 1))
+        i++
+        if (i === fullWelcomeText.length) clearInterval(interval)
+      }, 30)
+      return () => clearInterval(interval)
+    }
+  }, [messages.length])
+
   if (!isLoaded) {
     return <div>Loading chat history...</div>
   }
@@ -128,10 +146,11 @@ export default function Chat() {
 
       <div className="fixed left-0 right-0 h-36 bg-gradient-to-b from-white to-transparent z-10" />
 
-      <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
+      <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch relative">
         {messages.length > 0
           ? messages.map((m) => <MessageComponent key={m.id} message={m} />)
           : null}
+        {/* Show loading indicator when submitting */}
         {status === 'submitted' && (
           <div className="mb-4">
             <div className="flex items-center gap-2 mt-2">
@@ -141,15 +160,33 @@ export default function Chat() {
             </div>
           </div>
         )}
-        <form onSubmit={handleSubmit}>
-          <input
-            className="fixed bottom-0 w-full max-w-md p-2 mb-8 border border-gray-300 rounded shadow-xl"
-            value={input}
-            placeholder="Ask a question about the TLED site..."
-            onChange={handleInputChange}
-            disabled={status === 'submitted'}
-          />
-        </form>
+        {/* Input and welcome message fixed at the bottom */}
+        <div className="fixed left-1/2 -translate-x-1/2 bottom-0 w-full max-w-md px-2 z-20 pointer-events-none">
+          {messages.length === 0 && (
+            <div className="flex justify-between items-center mb-2 text-gray-700 bg-gray-100 rounded-lg p-4 shadow animate-none pointer-events-auto">
+              <div className="flex-1">
+                <span>{welcomeText}</span>
+                <span className="inline-block w-2 h-5 align-bottom bg-gray-700 animate-pulse ml-1" />
+              </div>
+              <Image
+                src="/rb-avatar.png"
+                alt="RB Avatar"
+                className="w-12 h-12 ml-4 flex-shrink-0"
+                width={48}
+                height={48}
+              />
+            </div>
+          )}
+          <form onSubmit={handleSubmit} className="pointer-events-auto">
+            <input
+              className="w-full p-2 mb-8 border border-gray-300 rounded shadow-xl"
+              value={input}
+              placeholder="Ask a question about the TLED site..."
+              onChange={handleInputChange}
+              disabled={status === 'submitted'}
+            />
+          </form>
+        </div>
       </div>
     </>
   )
