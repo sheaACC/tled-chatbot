@@ -2,7 +2,7 @@
 import React from 'react'
 import Markdown from 'react-markdown'
 import { useChat } from '@ai-sdk/react'
-import { memo, useEffect, useState } from 'react'
+import { memo, useEffect, useState, useRef } from 'react'
 import Image from 'next/image'
 
 const STORAGE_KEY = 'tled_chat_history'
@@ -44,6 +44,8 @@ export default function Chat() {
     initialMessages,
     onFinish: () => {},
   })
+
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -104,6 +106,13 @@ export default function Chat() {
       return () => clearInterval(interval)
     }
   }, [messages.length])
+
+  // Focus the input on load
+  useEffect(() => {
+    if (isLoaded && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [isLoaded])
 
   if (!isLoaded) {
     return <div>Loading chat history...</div>
@@ -166,7 +175,6 @@ export default function Chat() {
             <div className="flex justify-between items-center mb-2 text-gray-700 bg-gray-100 rounded-lg p-4 shadow animate-none pointer-events-auto">
               <div className="flex-1">
                 <span>{welcomeText}</span>
-                <span className="inline-block w-2 h-5 align-bottom bg-gray-700 animate-pulse ml-1" />
               </div>
               <Image
                 src="/rb-avatar.png"
@@ -179,6 +187,7 @@ export default function Chat() {
           )}
           <form onSubmit={handleSubmit} className="pointer-events-auto">
             <input
+              ref={inputRef}
               className="w-full p-2 mb-8 border border-gray-300 rounded shadow-xl"
               value={input}
               placeholder="Ask a question about the TLED site..."
